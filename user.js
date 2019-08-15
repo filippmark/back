@@ -21,10 +21,6 @@ const userScheme = new Schema({
         type: String,
         required: true
     },
-    salt: {
-        type: String,
-        required: true
-    }
 });
 
 module.exports = mongoose.model("bookingUsers", userScheme);

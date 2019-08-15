@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const User = require('./user');
+const bcrypt = require('bcrypt');
 var app = express();
 
 
@@ -12,20 +13,33 @@ app.use(bodyParser.json());
 app.post('/reg', function(req, res){
     console.log(req.body.email);
 
+    let user;
 
-    /*const User = new User({
-        email: req.body.email,
-        nickName: req.body.userName,
-        hash: ,
-        salt:
+    bcrypt.genSalt(10, function(err, salt){
+        bcrypt.hash(req.body.pass, salt, (err, h) =>{
+            
+            user = new User({
+            email: req.body.email,
+            nickName: req.body.userName,
+            hash: h,
+            });
+            user.save((err) =>{
+                if(err)
+                    return console.log(err);
+                else
+                    console.log("новый пользователь")
+            });
+        
+            User.find({}, (err, docs) => {
+                
+                console.log(docs);
+        
+            });
+        });
     });
-    User.save((err) =>{
-        if(err)
-            return console.log(err);
-        else
-            console.log("новый пользователь")
-    });
-    */
+        
+    
+    
 
     res.status(200).send("oke");
 });
