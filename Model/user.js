@@ -17,6 +17,7 @@ const userScheme = new Schema({
         type: String,
         required: true
     },
+    
 });
 
 userScheme.pre("save", function(next) {
@@ -36,13 +37,11 @@ userScheme.pre("save", function(next) {
 })
 
 
-userScheme.methods.checkPassword = function checkPassword(password, callback){
-    bcrypt.compare(password, this.password, function(err, res) {
-        if(err){
-            callback(err);
-        }else{
-            callback(err, res);
-        }
+userScheme.methods.validPassword = function validPassword(password, cb){
+    bcrypt.compare(password, this.password, (err, res) => {
+        if(err)
+            return cb(err, false);
+        return cb(null, res);
     });
 } 
 
