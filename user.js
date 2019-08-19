@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
+require('dotenv').config();
 const Schema  = mongoose.Schema;
 
 
-const uri = "mongodb+srv://fil:123@cluster0-hhu4a.mongodb.net/test?retryWrites=true&w=majority";
-
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useCreateIndex', true);
 
 const userScheme = new Schema({
@@ -13,11 +12,6 @@ const userScheme = new Schema({
         type: String,
         required: true,
         unique: true
-    },
-    nickName:{
-        type: String,
-        required: true,
-        unique: true,
     },
     password:{
         type: String,
@@ -53,4 +47,4 @@ userScheme.methods.checkPassword = function checkPassword(password, callback){
 } 
 
 
-module.exports = mongoose.model("bookingUsers", userScheme);
+module.exports = mongoose.model("cinemaBookingUser", userScheme);

@@ -9,34 +9,37 @@ var app = express();
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(function(err, reg, res, next){
+    console.error(err.stack);
+    res.status(500).send("Server failed");
+})
 
 app.post('/reg', function(req, res){
-    console.log(req.body.email);
-        
+    
     let user = new User({
         email: req.body.email,
-        nickName: req.body.userName,
         password: req.body.pass,
     });
 
-    user.save((err) =>{
-        if(err){
-            res.status(500).send("Oooops")
-            return console.log(err);
-        }
-        else{
-            res.status(200).send("oke");
-        }
-    });
-        
+    if ((validator.isEmail(user.email)) && (validator.isAlphanumeric(user.password))){
+        user.save((err) =>{
+                if (!err)
+                    res.status(200).send("oke");
+                else
+                    res.status(200).send("Email уже занят");
+        });
+    }else if (!validator.isEmail(user.email)){
+        res.status(200).send("Некорректный email")
+    } else if (!validator.isAlphanumeric(user.password)){
+        res.status(200).send("Некорректный пароль");
+    }
+
 });
 
 app.post('/login', function(req, res){
     const {email, password} = req.body;
     User.findOne({email}, function(err, user){
-        if(err){
-            res.status(500).send("Oooops");            
-        }else if(!user){
+        if(!user){
 
         }else{
             user.checkPassword(password, function(err, same){
