@@ -25,6 +25,7 @@ app.post('/reg', function(req, res){
     let user = new User({
         email: req.body.email,
         password: req.body.pass,
+        isAdmin: false
     });
 
     if ((validator.isEmail(user.email)) && (validator.isAlphanumeric(user.password))){

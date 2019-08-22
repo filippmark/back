@@ -17,7 +17,10 @@ const userScheme = new Schema({
         type: String,
         required: true
     },
-    
+    isAdmin: {
+        type: Boolean,
+        required: true
+    }
 });
 
 userScheme.pre("save", function(next) {
