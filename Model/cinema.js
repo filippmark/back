@@ -17,9 +17,14 @@ const cinemaSchema = new Schema({
     },
     amountOfHalls:{
         type: Number,
-        required: true
+        default: 0
     }
 });
+
+cinemaSchema.methods.incHalls = function incHalls(){
+    this.amountOfHalls = this.amountOfHalls +  1; 
+    this.save();
+}
 
 
 module.exports = mongoose.model('cinema',cinemaSchema);

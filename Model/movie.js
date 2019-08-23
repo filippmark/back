@@ -5,20 +5,24 @@ require('dotenv').config();
 mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useCreateIndex', true);
 
-const seatSchema = new Schema({
-    hallId: {
-        type: Schema.Types.ObjectId,
+const movieSchema = new Schema({
+    name:{
+        type: String,
         required: true
     },
-    typeOfSeat:{
-        type: String,
-        required: true,
+    start:{
+        type: Date,
+        required: true   
     },
-    amount:{
+    end:{
+        type: Date,
+        required: true   
+    },
+    description:{
         type: String,
-        required: true,
+        required: true
     }
 });
 
 
-module.exports = mongoose.model("seat", seatSchema);
+module.exports = mongoose.model("movie", movieSchema);
