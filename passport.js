@@ -7,7 +7,7 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
 
 
-const User = require("./Model/user");
+const User = require("./model/user");
 
 passport.use(new LocalStrategy({
         usernameField: 'email',

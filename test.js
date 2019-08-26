@@ -1,7 +1,7 @@
-const User = require('./Model/user.js');
-const Cinema = require('./Model/cinema');
-const Hall = require("./Model/hall");
-const Movie = require("./Model/movie");
+const User = require('./model/user.js');
+const Cinema = require('./model/cinema');
+const Hall = require("./model/hall");
+const Movie = require("./model/movie");
 
 Movie.find({}, function(err, res){
     console.log(res);
