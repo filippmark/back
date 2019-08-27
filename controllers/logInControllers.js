@@ -7,18 +7,20 @@ const logIn = function(req, res, next){
         console.log(info);
         if (err) {
              return next(err); 
-        }
-        if (!user) { 
-            return res.status(200).send(info); 
-        }
-        req.logIn(user, {session: false}, function(err) {
-            if (err) { 
-                return next(err); 
+        } else{
+            if (!user) { 
+                return res.status(200).send(info); 
+            } else{
+                req.logIn(user, {session: false}, function(err) {
+                    if (err) { 
+                        return next(err); 
+                    }
+                    const token = jwt.sign({user}, process.env.SECURE_KEY);
+                    console.log(process.env.SECURE_KEY);
+                    return res.send({user, token});
+                });
             }
-            const token = jwt.sign({user}, process.env.SECURE_KEY);
-            console.log(process.env.SECURE_KEY);
-            return res.send({user, token});
-        });
+        }
       })(req, res, next);
     
     

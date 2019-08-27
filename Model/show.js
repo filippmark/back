@@ -7,6 +7,10 @@ mongoose.set('useCreateIndex', true);
 
 
 const showSchema = new Schema({
+    town:{
+        type: String,
+        required: true
+    },
     movieId:{
         type: Schema.Types.ObjectId,
         required: true

@@ -8,4 +8,6 @@ searchRouter.post("/search/cinema" , searchControllers.cinemaSearch);
 
 searchRouter.post("/search/film", searchControllers.filmSearch);
 
+searchRouter.post("/search", searchControllers.search)
+
 module.exports = searchRouter;

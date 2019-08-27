@@ -6,6 +6,7 @@ const Schema  = mongoose.Schema;
 
 mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useCreateIndex', true);
+mongoose.set('useFindAndModify', true)
 
 const userScheme = new Schema({
     email:{
