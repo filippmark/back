@@ -17,7 +17,7 @@ const logIn = function(req, res, next){
             }
             const token = jwt.sign({user}, process.env.SECURE_KEY);
             console.log(process.env.SECURE_KEY);
-            return res.json({user, token});
+            return res.send({user, token});
         });
       })(req, res, next);
     

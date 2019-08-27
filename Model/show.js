@@ -7,30 +7,35 @@ mongoose.set('useCreateIndex', true);
 
 
 const showSchema = new Schema({
-    film:{
-        type: String,
+    movieId:{
+        type: Schema.Types.ObjectId,
         required: true
     }, 
-    cinema:{
-        type: String,
+    cinemaId:{
+        type: Schema.Types.ObjectId,
         required: true
     },
-    hall:{
-        type: String,
+    hallId:{
+        type: Schema.Types.ObjectId,
         required: true
     },
-    start:{
+    amount:{
+        type: Number,
+        required: true,
+    },
+    date:{
         type: Date,
-        required: true
-    },      
-    end:{                       
-        type: Date,     
-        required: true  
-    }   
+        required: true   
+    },
+    active:{
+        type: Boolean,
+        default: true
+    },
+    prices:{
+        type: Array,
+        required: true,
+    }
 }); 
-
-
-
 
 
 module.exports = mongoose.model("show", showSchema);

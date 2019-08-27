@@ -6,10 +6,12 @@ const Movie = require("../model/movie");
 exports.newCinema = function(req, res){
     console.log(req.body);
     let {townName, cinemaName} = req.body;
+    
     let cinema =  new Cinema({
         name: cinemaName,
         town: townName,
     });
+    console.log(cinema);
     cinema.save((err) => {
         if (err)
             next(err);

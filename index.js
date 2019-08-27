@@ -10,7 +10,7 @@ require("./passport");
 const adminRouter = require('./routes/adminRouter');
 const regRouter = require('./routes/regRouter');
 const loginRouter = require('./routes/loginRouter');
-
+const searchRouter = require('./routes/searchRouter');
 
 var app = express();
 
@@ -32,8 +32,16 @@ app.use('/', loginRouter);
 
 app.use('/', adminRouter);
 
+app.use('/', searchRouter);
+
+
 app.get('/', function(req, res){
     res.send("vceewwe chetka");
+});
+
+app.post('/newShow', function(reg, res, next){
+    console.log(reg.body);
+    res.status(200).send("oke");
 });
 
 app.listen(8080);
