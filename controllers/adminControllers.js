@@ -10,8 +10,8 @@ exports.newCinema = function(req, res, next){
     console.log(req.body);
     let {townName, cinemaName} = req.body;
     let cinema =  new Cinema({
-        name: cinemaName,
-        town: townName,
+        name: cinemaName.toLowerCase(),
+        town: townName.toLowerCase(),
     });
     console.log(cinema);
     cinema.save((err) => {
@@ -24,7 +24,7 @@ exports.newCinema = function(req, res, next){
 exports.newHall =  function(req, res, next){
     console.log(req.body);
     let {townName, cinemaName, hallName} = req.body;
-    Cinema.findOne({name: cinemaName, town: townName}, (err, doc) => {
+    Cinema.findOne({name: cinemaName.toLowerCase(), town: townName.toLowerCase()}, (err, doc) => {
         if(err)
             next(err);
         else{
@@ -33,7 +33,7 @@ exports.newHall =  function(req, res, next){
                 console.log(doc);
                 let hall = new Hall({
                     cinemaId: doc._id,
-                    hallName: hallName
+                    hallName: hallName.toLowerCase(),
                 });
                 console.log(hall);
                 hall.save((err) => {
@@ -57,7 +57,7 @@ exports.newFilm = function(req, res, next){
     let endDate = new Date(end);
     if ((startDate.toString() !== "Invalid Date") && (endDate.toString() !== "Invalid Date")){
         const movie = new Movie({
-            name: name,
+            name: name.toLowerCase(),
             start: startDate,
             end: endDate,
             description: description
@@ -78,30 +78,29 @@ exports.newShow = function(req, res, next){
     let data = req.body;
     let date = new Date(req.body.date);
     if (date.toString() !== "Invalid date"){
-        Cinema.findOne({name: data.cinema, town: data.town},(err, doc) => {
+        Cinema.findOne({name: data.cinema.toLowerCase(), town: data.town.toLowerCase()},(err, doc) => {
             if (err)
                 next(err);
             if (doc){
                 let cinemaId = doc._id;
-                Hall.findOne({cinemaId: cinemaId, hallName: data.hall}, (err, doc) =>{
+                Hall.findOne({cinemaId: cinemaId, hallName: data.hall.toLowerCase()}, (err, doc) =>{
                         if(err)
                             next(err);
                         if(doc){
-                            let hallId = doc._id;
                             let amount = doc.amountOfSeats;
-                            Movie.findOne({name: data.film}, (err, doc) =>{
+                            Movie.findOne({name: data.film.toLowerCase()}, (err, doc) =>{
                                 if(err)
                                     next(err);
                                 if(doc){
-                                    let movieId = doc._id;
                                     if (doc.end.getTime() - date.getTime() >= 0){
                                         let show = new Show({
-                                            town: data.town,
-                                            movieId: movieId,
-                                            cinemaId: cinemaId,
-                                            hallId: hallId,
+                                            town: data.town.toLowerCase(),
+                                            movie: data.film.toLowerCase(),
+                                            cinema: data.cinema.toLowerCase(),
+                                            hall: data.hall.toLowerCase(),
                                             amount: amount,
                                             date: date,
+                                            time: data.time,
                                             prices: data.prices.slice()
                                         });
                                         show.save((err) => {

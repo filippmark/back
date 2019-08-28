@@ -11,6 +11,7 @@ const adminRouter = require('./routes/adminRouter');
 const regRouter = require('./routes/regRouter');
 const loginRouter = require('./routes/loginRouter');
 const searchRouter = require('./routes/searchRouter');
+const ticketsRouter = require('./routes/ticketsRouter');
 
 var app = express();
 
@@ -33,6 +34,8 @@ app.use('/', loginRouter);
 app.use('/', adminRouter);
 
 app.use('/', searchRouter);
+
+app.use('/', ticketsRouter);
 
 
 app.get('/', function(req, res){

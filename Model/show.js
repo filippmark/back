@@ -11,16 +11,16 @@ const showSchema = new Schema({
         type: String,
         required: true
     },
-    movieId:{
-        type: Schema.Types.ObjectId,
+    movie:{
+        type: String,
         required: true
     }, 
-    cinemaId:{
-        type: Schema.Types.ObjectId,
+    cinema:{
+        type: String,
         required: true
     },
-    hallId:{
-        type: Schema.Types.ObjectId,
+    hall:{
+        type: String,
         required: true
     },
     amount:{
@@ -30,6 +30,10 @@ const showSchema = new Schema({
     date:{
         type: Date,
         required: true   
+    },
+    time:{
+        type: String,
+        required: true
     },
     active:{
         type: Boolean,

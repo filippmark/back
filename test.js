@@ -4,6 +4,12 @@ const Hall = require("./model/hall");
 const Movie = require("./model/movie");
 const Show = require("./model/show");
 
-Show.findOne({town: "Могилёв"}, function(err, res){
-    console.log(res);
-});
+Cinema.find({}, (err, docs) => {console.log(docs)});
+
+Show.find({}, (err, docs) => {console.log(docs)});
+
+Hall.find({}, (err, docs) => {console.log(docs)});
+
+Movie.find({}, (err, docs) => {console.log(docs)});
+
+

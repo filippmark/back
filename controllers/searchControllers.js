@@ -13,7 +13,7 @@ exports.townSearch = function(req, res, next){
             next(err);
         console.log(docs);
         variants = docs.filter(element => {
-            return element.town.toLowerCase().startsWith(value.toLowerCase());
+            return element.town.startsWith(value.toLowerCase());
         });
         
         res.status(200).send({variants});
@@ -29,7 +29,7 @@ exports.cinemaSearch = function(req, res){
             next(err);
         console.log(docs);
         variants = docs.filter(element => {
-            return element.name.toLowerCase().startsWith(value.toLowerCase());
+            return element.name.startsWith(value.toLowerCase());
         });
         res.status(200).send({variants});
     })
@@ -44,7 +44,7 @@ exports.filmSearch = function(req, res){
             next(err);
         console.log(docs);
         variants = docs.filter(element => {
-            return element.name.toLowerCase().startsWith(value.toLowerCase());
+            return element.name.startsWith(value.toLowerCase());
         });
         res.status(200).send({variants});
     });
@@ -53,52 +53,33 @@ exports.filmSearch = function(req, res){
 exports.search = function(req, res, next) {
     console.log(req.body);
     let data = req.body;
-    let date = new Date(data.day);
-    if (validator.isNumeric(data.amount)){
-        let amount = parseInt(data.amount);
-        if (date.toString() !== "Invalid date"){
-            Cinema.findOne({name: data.cinema}, (err, doc) => {
-                if (err){
-                    next(err);
-                }else{
-                    if(!doc){
-                        res.status(200).send("No such cinema");
-                    }else{
-                        let cinemaId = doc._id;
-                        Movie.findOne({name: data.film}, (err, doc) => {
-                            if (err){
-                                next(err);
-                            }else{
-                                if (!doc){
-                                    res.status(200).send("No such film");
-                                } else{
-                                    Show.findOne({
-                                        town: data.town,
-                                        cinemaId: cinemaId,
-                                        movieId: movieId,
-                                        date: date,
-                                    }, (err, res) => {
-                                        if (err){
-                                            next(err);
-                                        } else{
-                                            if (!doc){
-                                                res.status(200).send("no such shows");
-                                            } else{
-                                                
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                            
-                        })
-                    }
-                }
-            });
-        }else{
-            res.status(200).send("Check day field");    
+    if (data.hasOwnProperty('date')){
+        let date = new  Date(data.date);
+        if (date.toString() === "Invalid date"){
+            return res.status(200).send("Проверьте дату")
         }
-    }else{
-        res.status(200).send("Check amount field");
     }
+    if (data.hasOwnProperty('amount')){
+        if (validator.isNumeric(data.amount)){
+            let amount = parseInt(data.amount, 10);
+            data.amount = amount;
+            if (amount <= 1){
+                return res.status(200).send("Проверьте количество");
+            }
+        } else{
+            return res.status(200).send("Проверьте количество");
+        }
+    }
+    Show.find(data, (err, docs) => {
+        if (err){
+            next(err);
+        } else{
+            if(docs.length === 0 ){
+                return res.status(200).send("Нет подходящих результатов");
+            }else{
+                res.status(200).send(docs);
+            }
+        }
+            
+    });
 }
