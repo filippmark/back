@@ -15,7 +15,6 @@ exports.townSearch = function(req, res, next){
         variants = docs.filter(element => {
             return element.town.startsWith(value.toLowerCase());
         });
-        
         res.status(200).send({variants});
     })
 }
