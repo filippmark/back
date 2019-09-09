@@ -4,49 +4,57 @@ const Hall = require("../model/hall");
 const Show = require("../model/show");
 const validator = require("validator");
 
-exports.townSearch = function(req, res, next){
-    console.log(req.body);
-    let {value} = req.body;
-    var variants = [];
-    Cinema.find({}, (err, docs) =>{ 
-        if (err)
-            next(err);
-        console.log(docs);
-        variants = docs.filter(element => {
-            return element.town.startsWith(value.toLowerCase());
-        });
-        res.status(200).send({variants});
-    })
+
+let findHints = (field, value, docs) => {
+    let variants = [];
+    let hints = [];
+    docs.forEach(element => {
+        console.log(element[field]); 
+        console.log(variants.indexOf(element[field]));
+        if ((element[field].startsWith(value.toLowerCase())) && (hints.indexOf(element[field]) === -1)){
+            hints.push(element[field]);
+            variants.push(element);
+       } 
+    });    
+    return variants;
 }
 
-exports.cinemaSearch = function(req, res){
+exports.townSearch = async function(req, res, next){
     console.log(req.body);
     let {value} = req.body;
-    var variants = [];
-    Cinema.find({}, (err, docs) =>{ 
-        if (err)
-            next(err);
+    try{
+        let docs = await Cinema.find({});
         console.log(docs);
-        variants = docs.filter(element => {
-            return element.name.startsWith(value.toLowerCase());
-        });
+        let variants = findHints('town',value, docs);
+        console.log(variants);
         res.status(200).send({variants});
-    })
+    }catch(err){
+        next(err);
+    }
 }
 
-exports.filmSearch = function(req, res){
+exports.cinemaSearch = async function(req, res, next){
     console.log(req.body);
     let {value} = req.body;
-    var variants = [];
-    Movie.find({}, (err, docs) => {
-        if (err)
-            next(err);
-        console.log(docs);
-        variants = docs.filter(element => {
-            return element.name.startsWith(value.toLowerCase());
-        });
+    try{
+        let docs = await Cinema.find({});
+        let variants = findHints('name',value, docs);
         res.status(200).send({variants});
-    });
+    }catch(err){
+        next(err);
+    }
+}
+
+exports.filmSearch = async function(req, res, next){
+    console.log(req.body);
+    let {value} = req.body;
+    try{
+        let docs = await Movie.find({});
+        let variants = findHints('name', value, docs);
+        res.status(200).send({variants});
+    }catch(err){
+        next(err);
+    }
 }
 
 exports.search = function(req, res, next) {
