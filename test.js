@@ -12,4 +12,6 @@ Hall.find({}, (err, docs) => {console.log(docs)});
 
 Movie.find({}, (err, docs) => {console.log(docs)});
 
+let arr = Array(5).map((element) => {return {};});
+
 
