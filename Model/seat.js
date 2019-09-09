@@ -10,11 +10,20 @@ const seatSchema = new Schema({
         type: Schema.Types.ObjectId,
         required: true
     },
-    typeOfSeat:{
+    type:{
         type: String,
         required: true,
     },
+    row:{
+        type: Number,
+        required: true,
+    },
+    num:{
+        type: Number,
+        required: true
+    }
 });
 
 
-module.exports = mongoose.model("seat", seatSchema);
+exports.model = mongoose.model("seat", seatSchema);
+exports.schema = seatSchema;

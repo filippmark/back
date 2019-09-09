@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema  = mongoose.Schema;
+const Seat = require("./seat");
 
 mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useCreateIndex', true);
@@ -13,10 +14,14 @@ const hallSchema = new Schema({
         type: String,
         required: true
     },
+    amountOfRows:{
+        type: Number,
+        required: true
+    },
     amountOfSeats:{
         type: Number,
-        default: 0
-    }
+        required: true
+    },
 });
 
 
