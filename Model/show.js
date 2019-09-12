@@ -44,6 +44,9 @@ const showSchema = new Schema({
   prices: {
     type: Array,
     required: true
+  },
+  reservations: {
+    type: [{type: Schema.ObjectId, ref: 'reservation'}]
   }
 });
 

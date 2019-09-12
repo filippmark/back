@@ -24,6 +24,7 @@ exports.newCinema = function(req, res, next) {
 exports.newHall = async function(req, res, next) {
   console.log(req.body);
   let {town, cinema, hall, rows, amount} = req.body;
+  console.log(rows);
   try{
     let doc =  await Cinema.findOne({ name: cinema.toLowerCase(), town: town.toLowerCase()});
     if (doc) {
@@ -42,16 +43,14 @@ exports.newHall = async function(req, res, next) {
         console.log(saveHall);
         rows.forEach(element => {
           element.forEach( async (seat) => {
-            console.log(seat);
-            if (seat.type !== 'deleted'){
-              let seatDoc = new Seat.model({
-                hallId: hallDoc._id,
-                num: seat.num,
-                row: seat.row,
-                type: seat.type
-              });
-              let saveSeat = await seatDoc.save();
-            }
+            let seatDoc = new Seat.model({
+              hallId: hallDoc._id,
+              num: seat.num,
+              row: seat.row,
+              type: seat.type
+            });
+            let saveSeat = await seatDoc.save();
+          
           });
         });
       }else{
