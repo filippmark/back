@@ -34,6 +34,7 @@ passport.use(new JwtStrategy({
   secretOrKey   : process.env.SECURE_KEY
 },
 function (jwtPayload, cb) {
+  console.log(jwtPayload);
   return User.findOneById(jwtPayload.id)
       .then(user => {
           return cb(null, user);
