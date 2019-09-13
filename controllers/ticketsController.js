@@ -122,10 +122,8 @@ let removeOldBookedTickets = async () => {
       } 
     }));
     updatedReservations = updatedReservations.filter(element => {return element});
-    console.log(updatedReservations);
     show.reservations = updatedReservations;
     await show.save();
-    //console.log(show);
   });
 };
 

@@ -6,6 +6,8 @@ const passport = require("passport");
 
 exports.bookTickets = async function(req, res, next) {
     console.log(req.body);
+    console.log(req.user);
+    let user = req.user;
     const {showId, tickets} = req.body;
     try{
         let showDoc = await Show.findById(showId);
@@ -14,15 +16,15 @@ exports.bookTickets = async function(req, res, next) {
             let reservation = new Reservation({
                 seat: seat._id,
                 start: Date.now(),
+                user: user._id,
+                show: showId,
             });
-            console.log(reservation);
             reservations.push(reservation._id);
             let saved = await reservation.save();
         })
         console.log(reservations);
         showDoc.reservations = showDoc.reservations.concat(reservations.slice());
         let saved = await showDoc.save();
-        console.log(saved);
         res.status(200).send('okei');
     }catch(err){
         next(err);

@@ -33,14 +33,14 @@ passport.use(new JwtStrategy({
   jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
   secretOrKey   : process.env.SECURE_KEY
 },
-function (jwtPayload, cb) {
-  console.log(jwtPayload);
-  return User.findOneById(jwtPayload.id)
-      .then(user => {
-          return cb(null, user);
-      })
-      .catch(err => {
-          return cb(err);
-      });
+async function (jwtPayload, cb) {
+  try{
+    console.log(jwtPayload);
+    console.log(jwtPayload.user._id);
+    let user = await User.findById(jwtPayload.user._id); 
+    console.log(user);
+    cb(null, user);
+  }catch(err){
+    cb(err);
   }
-));
+}));
