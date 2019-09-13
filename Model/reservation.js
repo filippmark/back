@@ -24,6 +24,10 @@ const reservationSchema = new Schema({
     show:{
         type: Schema.Types.ObjectId,
         ref: 'show'
+    },
+    active:{
+        type: Boolean,
+        default: true,
     }
 });
 
