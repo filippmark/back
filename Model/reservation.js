@@ -16,6 +16,18 @@ const reservationSchema = new Schema({
     seat:{
         type: Schema.Types.ObjectId,
         ref: 'seat'
+    },
+    user:{
+        type: Schema.Types.ObjectId,
+        ref: 'cinemaBookingUser'
+    },
+    show:{
+        type: Schema.Types.ObjectId,
+        ref: 'show'
+    },
+    active:{
+        type: Boolean,
+        default: true,
     }
 });
 

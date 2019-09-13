@@ -119,14 +119,14 @@ let removeOldBookedTickets = async () => {
         if (res.start - cutOffDate > 0) {
           return reservation;
         }
+        res.active = false;
+        res.save();
       } 
     }));
     updatedReservations = updatedReservations.filter(element => {return element});
-    console.log(updatedReservations);
     show.reservations = updatedReservations;
     await show.save();
-    //console.log(show);
   });
 };
 
-setInterval(removeOldBookedTickets, 60000);
+setInterval(removeOldBookedTickets, 10000);

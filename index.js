@@ -13,6 +13,7 @@ const loginRouter = require('./routes/loginRouter');
 const searchRouter = require('./routes/searchRouter');
 const ticketsRouter = require('./routes/ticketsRouter');
 const bookingRouter = require('./routes/bookingRouter');
+const bookedTicketsRouter = require('./routes/bookedTicketsRouter');
 
 var app = express();
 
@@ -39,6 +40,8 @@ app.use('/', searchRouter);
 app.use('/', ticketsRouter);
 
 app.use('/', bookingRouter);
+
+app.use('/', bookedTicketsRouter);
 
 app.get('/', function(req, res){
     res.send("vceewwe chetka");
