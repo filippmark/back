@@ -9,8 +9,6 @@ let findHints = (field, value, docs) => {
     let variants = [];
     let hints = [];
     docs.forEach(element => {
-        console.log(element[field]); 
-        console.log(variants.indexOf(element[field]));
         if ((element[field].startsWith(value.toLowerCase())) && (hints.indexOf(element[field]) === -1)){
             hints.push(element[field]);
             variants.push(element);
@@ -20,13 +18,10 @@ let findHints = (field, value, docs) => {
 }
 
 exports.townSearch = async function(req, res, next){
-    console.log(req.body);
     let {value} = req.body;
     try{
         let docs = await Cinema.find({});
-        console.log(docs);
         let variants = findHints('town',value, docs);
-        console.log(variants);
         res.status(200).send({variants});
     }catch(err){
         next(err);
@@ -34,7 +29,6 @@ exports.townSearch = async function(req, res, next){
 }
 
 exports.cinemaSearch = async function(req, res, next){
-    console.log(req.body);
     let {value} = req.body;
     try{
         let docs = await Cinema.find({});
@@ -46,7 +40,6 @@ exports.cinemaSearch = async function(req, res, next){
 }
 
 exports.filmSearch = async function(req, res, next){
-    console.log(req.body);
     let {value} = req.body;
     try{
         let docs = await Movie.find({});
@@ -57,36 +50,77 @@ exports.filmSearch = async function(req, res, next){
     }
 }
 
-exports.search = function(req, res, next) {
+let findAmount = (amount) => {
+    return function(element){
+        return element.amount >= amount;
+    }
+}
+
+exports.search = async function(req, res, next) {
     console.log(req.body);
     let data = req.body;
+    let amount = 0;
+    let result = {
+        data: [],
+        page: 1,
+        totalPages: 1,
+        err: ''
+    }
     if (data.hasOwnProperty('date')){
         let date = new  Date(data.date);
         if (date.toString() === "Invalid date"){
-            return res.status(200).send("Проверьте дату")
+            result.err = "Проверьте дату";
+            return res.status(200).send(result)
         }
     }
     if (data.hasOwnProperty('amount')){
         if (validator.isNumeric(data.amount)){
-            let amount = parseInt(data.amount, 10);
-            data.amount = amount;
-            if (amount <= 1){
-                return res.status(200).send("Проверьте количество");
+            amount = parseInt(data.amount, 10);
+            delete data.amount;
+            if (amount < 1){
+                result.err = "Проверьте количество";
+                return res.status(200).send(result);
             }
         } else{
-            return res.status(200).send("Проверьте количество");
+            result.err = "Проверьте количество";
+            return res.status(200).send(result);
         }
     }
-    Show.find(data, (err, docs) => {
-        if (err){
-            next(err);
-        } else{
-            if(docs.length === 0 ){
-                return res.status(200).send("Нет подходящих результатов");
-            }else{
-                res.status(200).send(docs);
+    try{
+        if(data.hasOwnProperty('cinema')){
+            let cinema = await Cinema.findOne({name: data.cinema.toLowerCase()});
+            if (!cinema){
+                result.err = "Проверьте кинотеатр";
+                return res.status(200).send(result);
             }
+            data.cinema = cinema._id;
         }
-            
-    });
+        
+        if(data.hasOwnProperty('film')){
+            let movie = await Movie.findOne({name: data.film.toLowerCase()});
+            if (!movie){
+                result.err = "Проверьте фильм";
+                return res.status(200).send(result);
+            }
+            delete data.film;
+            data.movie = movie._id;
+            let shows = await Show.find(data);
+            if (shows.length > 0){
+                result.data.push(movie);
+            }
+        }else{
+            let movies = await Movie.find({});
+            await Promise.all(movies.map(async (element) => {
+                let details = data;
+                details.movie = element._id;
+                let shows = await Show.find(data);
+                if ((shows.findIndex(findAmount(amount)) !== -1) && (shows.length > 0)){
+                    result.data.push(element);
+                }
+            }))
+        }
+        return res.status(200).send(result);
+    }catch(err){
+        next(err);
+    }
 }

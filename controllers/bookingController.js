@@ -23,6 +23,7 @@ exports.bookTickets = async function(req, res, next) {
             let saved = await reservation.save();
         })
         console.log(reservations);
+        showDoc.amount -= reservations.length;
         showDoc.reservations = showDoc.reservations.concat(reservations.slice());
         let saved = await showDoc.save();
         res.status(200).send('okei');

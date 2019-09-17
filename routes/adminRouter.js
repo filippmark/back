@@ -2,7 +2,7 @@ const express = require("express");
 const adminRouter = express.Router();
 const adminContollers = require("../controllers/adminControllers");
 
-adminRouter.post("/newFilm", adminContollers.newFilm);
+adminRouter.post("/films", adminContollers.newFilm);
 
 adminRouter.post('/newCinema', adminContollers.newCinema);
 
