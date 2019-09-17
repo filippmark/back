@@ -13,6 +13,10 @@ const movieSchema = new Schema({
     type: String,
     required: true
   },
+  title: {
+    type: String,
+    required: true
+  },
   start: {
     type: Date,
     required: true
@@ -21,7 +25,19 @@ const movieSchema = new Schema({
     type: Date,
     required: true
   },
-  description: {
+  overview: {
+    type: String,
+    required: true
+  },
+  poster_path: {
+    type: String,
+    required: true
+  },
+  backdrop_path: {
+    type: String,
+    required: true
+  },
+  vote_average: {
     type: String,
     required: true
   }

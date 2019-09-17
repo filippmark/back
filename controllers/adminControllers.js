@@ -21,28 +21,42 @@ exports.newCinema = function(req, res, next) {
   });
 };
 
+let getAmountOfDeletedPlaces = (rows) => {
+  let amount = 0;
+  rows.map((row) => {
+    row.map((seat) => {
+      amount = seat.type === 'delete' ? amount + 1: amount;
+    })
+  })
+  return amount;
+}
+
 exports.newHall = async function(req, res, next) {
   console.log(req.body);
-  let {town, cinema, hall, rows, amount} = req.body;
-  console.log(rows);
-  try{
-    let doc =  await Cinema.findOne({ name: cinema.toLowerCase(), town: town.toLowerCase()});
+  try {
+    let { town, cinema, hall, rows } = req.body;
+    let doc = await Cinema.findOne({
+      name: cinema.toLowerCase(),
+      town: town.toLowerCase()
+    });
     if (doc) {
       console.log(doc);
       let cinemaId = doc._id;
-      let docCheckHall = await Hall.findOne({cinemaId, hallName: hall});
-      if (!docCheckHall){
+      let docCheckHall = await Hall.findOne({ cinemaId, hallName: hall });
+      if (!docCheckHall) {
+        console.log();
+  
         let hallDoc = new Hall({
           cinemaId,
           hallName: hall,
           amountOfRows: rows.length,
-          amountOfSeats: amount
+          amountOfSeats: req.body.amount - getAmountOfDeletedPlaces(rows),
         });
         console.log(hallDoc);
         let saveHall = await hallDoc.save();
-        console.log(saveHall);
+        let amount = 0;
         rows.forEach(element => {
-          element.forEach( async (seat) => {
+          element.forEach(async seat => {
             let seatDoc = new Seat.model({
               hallId: hallDoc._id,
               num: seat.num,
@@ -50,23 +64,30 @@ exports.newHall = async function(req, res, next) {
               type: seat.type
             });
             let saveSeat = await seatDoc.save();
-          
           });
         });
-      }else{
-        res.status(200).send("ooops hall was added by another admin");  
+      } else {
+        res.status(200).send("ooops hall was added by another admin");
       }
-    }else {
+    } else {
       res.status(200).send("check your data");
-    } 
-  } catch(err){
+    }
+  } catch (err) {
     next(err);
-  }   
+  }
 };
 
 exports.newFilm = function(req, res, next) {
   console.log(req.body);
-  let { name, start, end, description } = req.body;
+  let {
+    name,
+    start,
+    end,
+    overview,
+    poster_path,
+    backdrop_path,
+    vote_average
+  } = req.body;
   let startDate = new Date(start);
   let endDate = new Date(end);
   if (
@@ -75,16 +96,20 @@ exports.newFilm = function(req, res, next) {
   ) {
     const movie = new Movie({
       name: name.toLowerCase(),
+      title: name,
       start: startDate,
       end: endDate,
-      description: description
+      overview,
+      poster_path,
+      backdrop_path,
+      vote_average
     });
     movie.save(err => {
-      if (err) next(err);
-      res.status(200).send("oke");
+      if (err) return next(err);
+      return res.status(200).send("oke");
     });
   } else {
-    res.status(200).send("Проверьте ваши даты");
+    return res.status(200).send("Проверьте ваши даты");
   }
 };
 
@@ -104,17 +129,20 @@ exports.newShow = function(req, res, next) {
             (err, doc) => {
               if (err) next(err);
               if (doc) {
+                console.log(doc);
                 let amount = doc.amountOfSeats;
+                console.log(amount);
+                let hallId = doc._id;
                 Movie.findOne({ name: data.film.toLowerCase() }, (err, doc) => {
                   if (err) next(err);
                   if (doc) {
                     if (doc.end.getTime() - date.getTime() >= 0) {
                       let show = new Show({
                         town: data.town.toLowerCase(),
-                        movie: data.film.toLowerCase(),
-                        cinema: data.cinema.toLowerCase(),
-                        hall: data.hall.toLowerCase(),
-                        amount: amount,
+                        movie: doc._id,
+                        cinema: cinemaId,
+                        hall: hallId,
+                        amount,
                         date: date,
                         time: data.time,
                         prices: data.prices.slice()
@@ -122,6 +150,7 @@ exports.newShow = function(req, res, next) {
                       show.save(err => {
                         if (err) console.log(err);
                       });
+                      res.status(200).send("oke");
                     } else res.status(200).send("check date");
                   } else {
                     res.status(200).send("check your film");
