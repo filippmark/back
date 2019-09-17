@@ -14,16 +14,16 @@ const showSchema = new Schema({
     required: true
   },
   movie: {
-    type: String,
-    required: true
+    type: Schema.ObjectId,
+    ref: "movie"
   },
   cinema: {
-    type: String,
-    required: true
+    type: Schema.ObjectId,
+    ref: "cinema"
   },
   hall: {
-    type: String,
-    required: true
+    type: Schema.ObjectId,
+    ref: "hall"
   },
   amount: {
     type: Number,
@@ -46,7 +46,7 @@ const showSchema = new Schema({
     required: true
   },
   reservations: {
-    type: [{type: Schema.ObjectId, ref: 'reservation'}]
+    type: [{ type: Schema.ObjectId, ref: "reservation" }]
   }
 });
 

@@ -35,20 +35,22 @@ exports.availableTickets = async function(req, res, next) {
   let respObj = {
     data: []
   };
-  for (let i = 0; i < cinemas.length; i++) {
+  let movieDoc = await Movie.findOne({name: movie.toLowerCase()});
+  await Promise.all(cinemas.map(async (cinema) => {
     let obj = {
-      cinema: cinemas[i],
+      cinema,
       dates: []
     };
+    console.log(cinema);
     let result = await Show.find({
-      town: cinemas[i].town,
-      cinema: cinemas[i].name,
-      movie: movie.toLowerCase(),
+      town: obj.cinema.town,
+      cinema: obj.cinema._id,
+      movie: movieDoc._id,
       date: new Date(date)
-    });
+    }).populate('cinema movie');
     obj.dates = result;
     if (result.length !== 0) respObj.data.push(obj);
-  }
+  }));
   res.status(200).send(respObj);
 };
 
@@ -65,33 +67,22 @@ function compare(a, b) {
 exports.availableSeats = async function(req, res, next) {
   console.log(req.body);
   let { _id, town, cinema, hall } = req.body.data;
-  console.log(cinema);
-  let cinemaDoc = await Cinema.findOne({ name: cinema, town });
-  if (cinemaDoc) {
-    let hallDoc = await Hall.findOne({
-      cinemaId: cinemaDoc._id,
-      hallName: hall
-    });
-    if (hallDoc) {
-      const seats = await Seat.model.find({ hallId: hallDoc._id });
-      const showDoc = await Show.findById(_id);
-      console.log(showDoc);
-      let reservations = showDoc.reservations;
-      if (seats.length > 0) {
-        let rows = [];
-        for (let i = 1; i <= hallDoc.amountOfRows; i++) {
-          let row = seats.filter(element => element.row === i);
-          row = row.sort(compare);
-          rows.push(row);
-        }
-        await Promise.all(reservations.map(processReservation(rows)));
-        let data = {
-          seats: rows
-        };
-        console.log(data);
-        res.status(200).send(data);
-      }
+  const hallDoc = await Hall.findById(hall);
+  const seats = await Seat.model.find({ hallId: hall});
+  const showDoc = await Show.findById(_id);
+  let reservations = showDoc.reservations;
+  if (seats.length > 0) {
+    let rows = [];
+    for (let i = 1; i <= hallDoc.amountOfRows; i++) {
+      let row = seats.filter(element => element.row === i);
+      row = row.sort(compare);
+      rows.push(row);
     }
+    await Promise.all(reservations.map(processReservation(rows)));
+    let data = {
+      seats: rows
+    };
+    res.status(200).send(data);
   }
 };
 
@@ -111,7 +102,8 @@ let removeOldBookedTickets = async () => {
   var cutOffDate = new Date();
   cutOffDate.setMinutes(cutOffDate.getMinutes() - 1);
   const shows = await Show.find({});
-  shows.forEach(async show => {
+   shows.forEach(async show => {
+    let oldAmountOfReservations = show.reservations.length;
     let updatedReservations = await Promise.all(show.reservations.map(async reservation => {
       let res = await Reservation.findById(reservation);
       if (res){
@@ -124,6 +116,7 @@ let removeOldBookedTickets = async () => {
       } 
     }));
     updatedReservations = updatedReservations.filter(element => {return element});
+    show.amount += oldAmountOfReservations  - updatedReservations.length;
     show.reservations = updatedReservations;
     await show.save();
   });
