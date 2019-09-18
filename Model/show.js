@@ -45,6 +45,10 @@ const showSchema = new Schema({
     type: Array,
     required: true
   },
+  services:{
+    type: Array,
+    required: true
+  },
   reservations: {
     type: [{ type: Schema.ObjectId, ref: "reservation" }]
   }
