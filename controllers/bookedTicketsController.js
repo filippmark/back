@@ -1,14 +1,21 @@
 const Show = require("../model/show");
-const Seat = require("../model/seat");
-const Reservation =  require("../model/reservation");
+const Order = require("../model/order");
+const Reservation = require("../model/reservation");
 
-exports.bookedTickets = async function(req, res, next){
-    console.log(req.body);
-    const {userId, active} = req.body;
-    const reservations = await Reservation.find({user: userId, active}).populate('show seat');
-    await Promise.all(reservations.map( async (reservation, index) => {
-        let show =  await Show.findById(reservation.show._id).populate("cinema hall movie");
-        reservations[index].show = show;
-    }))
-    res.status(200).send(reservations);          
-}
+exports.bookedTickets = async function(req, res, next) {
+  console.log(req.body);
+  const { userId, active } = req.body;
+  const orders = await Order.find({ user: userId, active }).populate(
+    "reservations"
+  );
+  await Promise.all(orders.map(async (order, i) => {
+    let showDoc = await Show.findById(order.show).populate("cinema hall movie");
+    orders[i].show = showDoc; 
+    await Promise.all( order.reservations.map(async (reservation, j) => {
+        const reservationDoc = await Reservation.findById(reservation).populate("seat");
+        orders[i].reservations[j] = reservationDoc;
+    }));
+  }));
+  console.log(orders);
+  res.status(200).send(orders);
+};
