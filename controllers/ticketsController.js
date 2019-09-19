@@ -3,6 +3,7 @@ const Show = require("../model/show");
 const Movie = require("../model/movie");
 const Seat = require("../model/seat");
 const Hall = require("../model/hall");
+const Order = require("../model/order");
 const Reservation = require("../model/reservation");
 
 exports.availableTime = async function(req, res, next) {
@@ -35,22 +36,24 @@ exports.availableTickets = async function(req, res, next) {
   let respObj = {
     data: []
   };
-  let movieDoc = await Movie.findOne({name: movie.toLowerCase()});
-  await Promise.all(cinemas.map(async (cinema) => {
-    let obj = {
-      cinema,
-      dates: []
-    };
-    console.log(cinema);
-    let result = await Show.find({
-      town: obj.cinema.town,
-      cinema: obj.cinema._id,
-      movie: movieDoc._id,
-      date: new Date(date)
-    }).populate('cinema movie');
-    obj.dates = result;
-    if (result.length !== 0) respObj.data.push(obj);
-  }));
+  let movieDoc = await Movie.findOne({ name: movie.toLowerCase() });
+  await Promise.all(
+    cinemas.map(async cinema => {
+      let obj = {
+        cinema,
+        dates: []
+      };
+      console.log(cinema);
+      let result = await Show.find({
+        town: obj.cinema.town,
+        cinema: obj.cinema._id,
+        movie: movieDoc._id,
+        date: new Date(date)
+      }).populate("cinema movie");
+      obj.dates = result;
+      if (result.length !== 0) respObj.data.push(obj);
+    })
+  );
   res.status(200).send(respObj);
 };
 
@@ -68,9 +71,11 @@ exports.availableSeats = async function(req, res, next) {
   console.log(req.body);
   let { _id, town, cinema, hall } = req.body.data;
   const hallDoc = await Hall.findById(hall);
-  const seats = await Seat.model.find({ hallId: hall});
+  const seats = await Seat.model.find({ hallId: hall });
   const showDoc = await Show.findById(_id);
-  let reservations = showDoc.reservations;
+  let orders = showDoc.orders;
+  console.log(showDoc);
+  console.log(orders);
   if (seats.length > 0) {
     let rows = [];
     for (let i = 1; i <= hallDoc.amountOfRows; i++) {
@@ -78,7 +83,7 @@ exports.availableSeats = async function(req, res, next) {
       row = row.sort(compare);
       rows.push(row);
     }
-    await Promise.all(reservations.map(processReservation(rows)));
+    await Promise.all(orders.map(processReservation(rows)));
     let data = {
       seats: rows
     };
@@ -87,14 +92,17 @@ exports.availableSeats = async function(req, res, next) {
 };
 
 let processReservation = rows => {
-  return async reservation => {
-    let res = await Reservation.findById(reservation).populate("seat");
-    console.log(res);
-    if (res){
-      const i = res.seat.row - 1;
-      const j = res.seat.num - 1;
-      rows[i][j].type = "booked";
-    }
+  return async order => {
+    let orderDoc = await Order.findById(order);
+    await Promise.all(orderDoc.reservations.map(async reservation => {
+      let res = await Reservation.findById(reservation).populate("seat");
+      console.log(res);
+      if (res) {
+        const i = res.seat.row - 1;
+        const j = res.seat.num - 1;
+        rows[i][j].type = "booked";
+      }
+    }));
   };
 };
 
@@ -102,22 +110,31 @@ let removeOldBookedTickets = async () => {
   var cutOffDate = new Date();
   cutOffDate.setMinutes(cutOffDate.getMinutes() - 1);
   const shows = await Show.find({});
-   shows.forEach(async show => {
-    let oldAmountOfReservations = show.reservations.length;
-    let updatedReservations = await Promise.all(show.reservations.map(async reservation => {
-      let res = await Reservation.findById(reservation);
-      if (res){
-        console.log(res.start - cutOffDate);
-        if (res.start - cutOffDate > 0) {
-          return reservation;
+  shows.forEach(async show => {
+    let oldAmountOfReservations = 0;
+    let newAmountOfreservations = 0;
+    let updatedOrders = await Promise.all(
+      show.orders.map(async orderId => {
+        let order = await Order.findById(orderId);
+        oldAmountOfReservations += order.reservations.length;
+        let reservation = order.reservations[0];
+        let res = await Reservation.findById(reservation);
+        if (res) {
+          console.log(res.start - cutOffDate);
+          if (res.start - cutOffDate > 0) {
+            newAmountOfreservations += order.reservations.length;
+            return orderId;
+          }
+          order.active = false;
+          await order.save();
         }
-        res.active = false;
-        res.save();
-      } 
-    }));
-    updatedReservations = updatedReservations.filter(element => {return element});
-    show.amount += oldAmountOfReservations  - updatedReservations.length;
-    show.reservations = updatedReservations;
+      })
+    );
+    updatedOrders = updatedOrders.filter(element => {
+      return element;
+    });
+    show.amount += oldAmountOfReservations - newAmountOfreservations;
+    show.orders = updatedOrders;
     await show.save();
   });
 };

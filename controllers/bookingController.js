@@ -1,14 +1,11 @@
 const Show = require("../model/show");
 const Seat = require("../model/seat");
 const Reservation =  require("../model/reservation");
-const passport = require("passport"); 
-
+const Order = require("../model/order");
 
 exports.bookTickets = async function(req, res, next) {
-    console.log(req.body);
-    console.log(req.user);
     let user = req.user;
-    const {showId, tickets} = req.body;
+    const {showId, tickets, services} = req.body;
     try{
         let showDoc = await Show.findById(showId);
         let reservations = [];
@@ -16,16 +13,23 @@ exports.bookTickets = async function(req, res, next) {
             let reservation = new Reservation({
                 seat: seat._id,
                 start: Date.now(),
-                user: user._id,
-                show: showId,
             });
             reservations.push(reservation._id);
-            let saved = await reservation.save();
+            await reservation.save();
         })
-        console.log(reservations);
         showDoc.amount -= reservations.length;
-        showDoc.reservations = showDoc.reservations.concat(reservations.slice());
-        let saved = await showDoc.save();
+        let orderDoc =  new Order({
+            user: user._id,
+            reservations,
+            services,         
+            user: user._id,
+            show: showId,
+        });
+        showDoc.orders = showDoc.orders.concat(orderDoc._id);
+        console.log(showDoc);
+        console.log(orderDoc);
+        await orderDoc.save();
+        await showDoc.save();
         res.status(200).send('okei');
     }catch(err){
         next(err);
