@@ -4,10 +4,10 @@ const Hall = require("./model/hall");
 const Movie = require("./model/movie");
 const Show = require("./model/show");
 const Reservation = require("./model/reservation");
+const Order = require("./model/order");
 
-//Show.remove({}, (err, docs) => {console.log(docs)});
 
-Hall.find({hallName: "zalik1"}, (err, docs) => {console.log(docs);})
+Order.find({}, (err, docs) => {console.log(docs)})
 
 //Show.find({}, (err, docs) => {console.log(docs)});
 

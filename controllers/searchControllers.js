@@ -113,7 +113,7 @@ exports.search = async function(req, res, next) {
             await Promise.all(movies.map(async (element) => {
                 let details = data;
                 details.movie = element._id;
-                let shows = await Show.find(data);
+                let shows = await Show.find(details);
                 if ((shows.findIndex(findAmount(amount)) !== -1) && (shows.length > 0)){
                     result.data.push(element);
                 }

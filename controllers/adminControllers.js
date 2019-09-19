@@ -145,7 +145,9 @@ exports.newShow = function(req, res, next) {
                         amount,
                         date: date,
                         time: data.time,
-                        prices: data.prices.slice()
+                        prices: data.prices,
+                        services: data.services,
+                        orders: []
                       });
                       show.save(err => {
                         if (err) console.log(err);
