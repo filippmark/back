@@ -9,7 +9,7 @@ const logIn = function(req, res, next) {
       return next(err);
     } else {
       if (!user) {
-        return res.status(200).send(info);
+        return res.status(500).send(info);
       } else {
         req.logIn(user, { session: false }, function(err) {
           if (err) {

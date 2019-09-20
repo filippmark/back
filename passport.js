@@ -17,11 +17,11 @@ passport.use(new LocalStrategy({
       User.findOne({ email}, function (err, user) {
         if (err) { return done(err); }
         if (!user) {
-          return done(null, false, { message: 'Incorrect username.' });
+          return done(null, false, { message: 'Неверный email!' });
         }
         user.validPassword(password, function (err, resp)  {
           if (!resp)
-            done(null, false, { message: 'Incorrect username.' });
+            return done(null, false, { message: 'Неверный пароль!' });
           done(null, user);  
         });
         

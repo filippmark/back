@@ -14,11 +14,11 @@ exports.newUser = function(req, res) {
   ) {
     user.save(err => {
       if (!err) res.status(200).send("oke");
-      else res.status(200).send("Email уже занят");
+      else return res.status(500).send({ message:"Email уже занят"});
     });
   } else if (!validator.isEmail(user.email)) {
-    res.status(200).send("Некорректный email");
+    return res.status(500).send({ message: "Некорректный email" });
   } else if (!validator.isAlphanumeric(user.password)) {
-    res.status(200).send("Некорректный пароль");
+    return res.status(500).send({ message:"Некорректный пароль"});
   }
 };

@@ -9,7 +9,7 @@ module.exports = function(req, res, next) {
         req.user = user;
         next();
     }else{
-        res.status(500).send;
+        res.status(500).send({message: "Авторизуйтесь, пожалуйста, для продолжения"});
     }
   })(req, res, next);
 };
